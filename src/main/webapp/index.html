@@ -1,0 +1,81 @@
+<html>
+<head>
+    <title>Google Maps Simple Directions Example</title>
+</head>
+
+<!-- Just a simple form which takes "from" and "to" values and
+     calls the server to get the data when the button is pressed. -->
+<body>
+<h2>Google Maps Simple Directions Example</h2>
+<h3>by Reyes Ponce</h3>
+<p/>
+<form action="" method="post" name="formgetdirs">
+    <label for="from">From:&nbsp;</label>
+    <input type="text" id="from" value="from">&nbsp;&nbsp;&nbsp;&nbsp;
+    <label for="to">To:&nbsp;</label>
+    <input type="text" id="to" value="to"><br><br>
+    <input type="button" onclick="getDirs()" value="Go">
+</form>
+<p/>
+<div id="directionsDiv"></div>
+
+<script>
+
+    // Process response from our web service.
+    // Just keeping it simple here rather than pulling in a full blown Javascript UI library.
+    function processResponse()
+    {
+        // if request object received response
+        if(request.readyState == 4)
+        {
+            // parse response
+            var jsonText = request.responseText;
+
+            // convert received string to JavaScript object
+            try
+            {
+                var directions = JSON.parse(jsonText);
+                var listItems = "<ol>";
+
+                if (directions != null && directions.steps != null)
+                {
+                    for (var i = 0; i < directions.steps.length; i++)
+                    {
+                        var step = directions.steps[i];
+                        listItems = listItems + "<li>" + step + "</li>";
+                    }
+                    listItems = listItems + "</ol>";
+                    document.getElementById("directionsDiv").innerHTML = listItems;
+                }
+                else
+                {
+                    alert("Unable to get directions for those locations.");
+                }
+            }
+            catch(e)
+            {
+                var err="Error: "+e.description;
+                alert(err);
+            }
+        }
+    }
+
+    // Call our web service to get the data from Google and simplify the results.
+    function getDirs()
+    {
+        document.getElementById("directionsDiv").innerHTML = null;
+        var from = document.formgetdirs.from.value;
+        var to = document.formgetdirs.to.value;
+
+        request = new XMLHttpRequest();
+
+        request.open("GET", "http://127.0.0.1:8080/google-maps-directions/api/directions?from="+from+"&to="+to, true);
+        request.onreadystatechange = processResponse;
+        request.send(null);
+    }
+
+
+</script>
+
+</body>
+</html>
